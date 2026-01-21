@@ -1,0 +1,1 @@
+source ea_scraper/bin/activate
