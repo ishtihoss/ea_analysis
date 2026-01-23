@@ -249,9 +249,45 @@ plt.savefig('sentiment_model_comparison.png', dpi=150, bbox_inches='tight')
 plt.show()
 
 # %%
-# Visualization 2: Sentiment by Category
+# Visualization 2a: Category Post Counts
+if 'category' in df.columns:
+    plt.figure(figsize=(12, 8))
+    
+    # Get category counts and sort
+    category_counts = df['category'].value_counts()
+    
+    # Create horizontal bar chart
+    bars = plt.barh(range(len(category_counts)), category_counts.values, color='steelblue')
+    plt.yticks(range(len(category_counts)), category_counts.index)
+    
+    # Add count labels on the bars
+    for i, (count, bar) in enumerate(zip(category_counts.values, bars)):
+        plt.text(count + max(category_counts.values) * 0.01, i, f'{count:,}', 
+                 va='center', fontsize=10)
+    
+    plt.xlabel('Number of Posts', fontsize=12)
+    plt.ylabel('Category', fontsize=12)
+    plt.title(f'Posts per Category (Total: {len(df):,} posts)', fontsize=14, fontweight='bold')
+    plt.xlim(0, max(category_counts.values) * 1.15)  # Add space for labels
+    plt.tight_layout()
+    plt.savefig('posts_per_category.png', dpi=150, bbox_inches='tight')
+    plt.show()
+    
+    # Print summary
+    print("\n" + "-" * 40)
+    print("📊 POSTS PER CATEGORY:")
+    print("-" * 40)
+    for cat, count in category_counts.items():
+        pct = count / len(df) * 100
+        print(f"  {cat}: {count:,} posts ({pct:.1f}%)")
+
+# %%
+# Visualization 2b: Sentiment by Category
 if 'category' in df.columns:
     plt.figure(figsize=(14, 8))
+    
+    # Get category counts for labels
+    category_counts = df['category'].value_counts()
     
     # Calculate sentiment percentages by category
     category_sentiment = pd.crosstab(
@@ -263,6 +299,10 @@ if 'category' in df.columns:
     # Sort by negativity
     if 'Negative' in category_sentiment.columns:
         category_sentiment = category_sentiment.sort_values('Negative', ascending=True)
+    
+    # Create labels with counts
+    new_labels = [f"{cat} (n={category_counts[cat]:,})" for cat in category_sentiment.index]
+    category_sentiment.index = new_labels
     
     # Plot
     category_sentiment.plot(
