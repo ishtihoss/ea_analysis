@@ -143,34 +143,6 @@ plt.savefig('confidence_and_engagement.png', dpi=150, bbox_inches='tight')
 plt.show()
 
 # %%
-# Top Negative Posts (Most Frustrated Users)
-print("=" * 60)
-print("🔴 TOP 10 MOST NEGATIVE POSTS")
-print("=" * 60)
-
-negative_posts = df[df['sentiment'] == 'Negative'].nsmallest(10, 'compound_score')
-for idx, row in negative_posts.iterrows():
-    print(f"\n{'─' * 50}")
-    print(f"📌 {row['title'][:80]}...")
-    print(f"   Category: {row.get('category', 'N/A')}")
-    print(f"   Score: {row['compound_score']:.3f} | Confidence: {row['confidence']:.3f}")
-    print(f"   👍 {row.get('likes', 0)} likes | 💬 {row.get('comments', 0)} comments")
-
-# %%
-# Top Positive Posts
-print("\n" + "=" * 60)
-print("🟢 TOP 10 MOST POSITIVE POSTS")
-print("=" * 60)
-
-positive_posts = df[df['sentiment'] == 'Positive'].nlargest(10, 'compound_score')
-for idx, row in positive_posts.iterrows():
-    print(f"\n{'─' * 50}")
-    print(f"📌 {row['title'][:80]}...")
-    print(f"   Category: {row.get('category', 'N/A')}")
-    print(f"   Score: {row['compound_score']:.3f} | Confidence: {row['confidence']:.3f}")
-    print(f"   👍 {row.get('likes', 0)} likes | 💬 {row.get('comments', 0)} comments")
-
-# %%
 # Correlation Analysis
 print("\n" + "=" * 60)
 print("📈 CORRELATION ANALYSIS")
