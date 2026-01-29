@@ -34,8 +34,11 @@ plt.show()
 if 'category' in df.columns:
     plt.figure(figsize=(12, 8))
     
-    # Get category counts and sort
+    # Get category counts and sort descending (already default for value_counts)
     category_counts = df['category'].value_counts()
+    
+    # Reverse order so highest count appears at the top of horizontal bar chart
+    category_counts = category_counts.iloc[::-1]
     
     # Create horizontal bar chart
     bars = plt.barh(range(len(category_counts)), category_counts.values, color='steelblue')
@@ -54,11 +57,12 @@ if 'category' in df.columns:
     plt.savefig('posts_per_category.png', dpi=150, bbox_inches='tight')
     plt.show()
     
-    # Print summary
+    # Print summary (use original descending order for readability)
+    category_counts_print = df['category'].value_counts()
     print("\n" + "-" * 40)
     print("📊 POSTS PER CATEGORY:")
     print("-" * 40)
-    for cat, count in category_counts.items():
+    for cat, count in category_counts_print.items():
         pct = count / len(df) * 100
         print(f"  {cat}: {count:,} posts ({pct:.1f}%)")
 
@@ -67,7 +71,7 @@ if 'category' in df.columns:
 if 'category' in df.columns:
     plt.figure(figsize=(14, 8))
     
-    # Get category counts for labels
+    # Get category counts for labels (descending order by count)
     category_counts = df['category'].value_counts()
     
     # Calculate sentiment percentages by category
@@ -77,9 +81,10 @@ if 'category' in df.columns:
         normalize='index'
     ) * 100
     
-    # Sort by negativity
-    if 'Negative' in category_sentiment.columns:
-        category_sentiment = category_sentiment.sort_values('Negative', ascending=True)
+    # Sort by category count (descending) - reindex to match category_counts order
+    # Then reverse so highest count appears at top of horizontal bar chart
+    category_sentiment = category_sentiment.reindex(category_counts.index)
+    category_sentiment = category_sentiment.iloc[::-1]
     
     # Create labels with counts
     new_labels = [f"{cat} (n={category_counts[cat]:,})" for cat in category_sentiment.index]
@@ -167,47 +172,6 @@ plt.savefig('correlation_matrix.png', dpi=150, bbox_inches='tight')
 plt.show()
 
 # %%
-# Word Analysis for Negative Posts
-try:
-    from wordcloud import WordCloud, STOPWORDS
-    
-    # Custom stopwords for EA forums
-    custom_stopwords = STOPWORDS.union({
-        'ea', 'game', 'games', 'player', 'players', 'team', 'account',
-        'will', 'get', 'got', 'one', 'also', 'would', 'could', 'even',
-        'like', 'just', 'now', 'know', 'dont', "don't", 'im', "i'm"
-    })
-    
-    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
-    
-    # Negative word cloud
-    negative_text = ' '.join(df[df['sentiment'] == 'Negative']['full_text'].dropna())
-    if negative_text:
-        wc_neg = WordCloud(width=800, height=400, background_color='white',
-                          stopwords=custom_stopwords, colormap='Reds',
-                          max_words=100).generate(negative_text)
-        axes[0].imshow(wc_neg, interpolation='bilinear')
-        axes[0].set_title('🔴 Common Words in NEGATIVE Posts', fontsize=14)
-        axes[0].axis('off')
-    
-    # Positive word cloud
-    positive_text = ' '.join(df[df['sentiment'] == 'Positive']['full_text'].dropna())
-    if positive_text:
-        wc_pos = WordCloud(width=800, height=400, background_color='white',
-                          stopwords=custom_stopwords, colormap='Greens',
-                          max_words=100).generate(positive_text)
-        axes[1].imshow(wc_pos, interpolation='bilinear')
-        axes[1].set_title('🟢 Common Words in POSITIVE Posts', fontsize=14)
-        axes[1].axis('off')
-    
-    plt.tight_layout()
-    plt.savefig('wordclouds.png', dpi=150, bbox_inches='tight')
-    plt.show()
-    
-except ImportError:
-    print("WordCloud not installed. Run: pip install wordcloud")
-
-# %%
 # Export results
 output_columns = [
     'title', 'author', 'category', 'timestamp',
@@ -278,5 +242,4 @@ Average Model Confidence: {df['confidence'].mean():.3f}
 • compound_score_distribution.png
 • confidence_and_engagement.png
 • correlation_matrix.png
-• wordclouds.png
 """)
